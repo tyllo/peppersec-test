@@ -3,6 +3,9 @@
   "compilerOptions": {
     "baseUrl": "."
   },
+  "files": [
+    "node_modules/vue-router/dist/vue-router.d.ts"
+  ],
   "include": [
     "configs/**/*.js",
     "src/**/*.js",

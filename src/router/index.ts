@@ -1,11 +1,12 @@
-import { route } from 'quasar/wrappers'
 import {
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
   createWebHistory,
+  RouteLocationNormalized,
 } from 'vue-router'
-import routes from './routes'
+import { createRoutes } from './routes'
+
 
 /*
  * If not building with SSR mode, you can
@@ -16,15 +17,20 @@ import routes from './routes'
  * with the Router instance.
  */
 
-export default route((/* { store, ssrContext } */) => {
+const createTitleGuard = (defaultTitle: string) => (to: RouteLocationNormalized) => {
+  const title = (to.meta as Record<string, string>)?.title
+  document.title = title ? `${title} — ${defaultTitle}` : defaultTitle
+}
+
+const createAppRouter = ((/* { store, ssrContext } */) => {
   // eslint-disable-next-line no-nested-ternary
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
 
-  const Router = createRouter({
+  const router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
-    routes,
+    routes: [],
 
     // Leave this as is and make changes in quasar.conf.js instead!
     // quasar.conf.js -> build -> vueRouterMode
@@ -34,5 +40,13 @@ export default route((/* { store, ssrContext } */) => {
     ),
   })
 
-  return Router
+  const routes = createRoutes({ router })
+  routes.forEach((route) => router.addRoute(route))
+
+  const titleGuar = createTitleGuard(document.title)
+  router.afterEach(titleGuar)
+
+  return router
 })
+
+export default createAppRouter

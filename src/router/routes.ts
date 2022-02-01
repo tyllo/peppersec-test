@@ -1,18 +1,18 @@
-import { RouteRecordRaw } from 'vue-router'
+import { Router } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Index.vue') }],
-  },
+import AirdropRoutes from 'pages/Airdrop/routes'
+import HomeRoutes from 'pages/Home/routes'
+import ErrorsRoutes from 'pages/Errors/routes'
 
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: '/:catchAll(.*)*',
-    component: () => import('pages/Error404.vue'),
-  },
+
+type ICreateRoutesOptions = {
+  router: Router;
+}
+
+export const createRoutes = (options: ICreateRoutesOptions) => [
+  ...HomeRoutes(options),
+  ...AirdropRoutes(options),
+
+  // must be last, because in error - `*` route
+  ...ErrorsRoutes(options),
 ]
-
-export default routes
