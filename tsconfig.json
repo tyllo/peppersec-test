@@ -1,0 +1,18 @@
+{
+  "extends": "@quasar/app/tsconfig-preset",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": [
+    "configs/**/*.js",
+    "src/**/*.js",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+
+    ".eslintrc.js",
+    ".postcssrc.js",
+    "babel.config.js",
+    "quasar.conf.js"
+  ]
+}
