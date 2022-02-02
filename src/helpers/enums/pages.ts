@@ -15,7 +15,7 @@ export const PAGE_AIRDROP_CREATE = {
 export const PAGE_AIRDROP_DROP = {
   name: ROUTE_AIRDROP_DROP,
   to: { name: ROUTE_AIRDROP_DROP },
-  title: 'Получить токены',
+  title: 'Забрать токена',
 }
 
 export const PAGE_ERROR_404 = {

@@ -1,11 +1,11 @@
 <template>
   <q-page>
-    AirdropCreate test
+    AirdropDrop test
   </q-page>
 </template>
 
 <script lang="ts">
 export default {
-  name: 'AirdropCreate',
+  name: 'PageAirdropDrop',
 }
 </script>

@@ -4,7 +4,11 @@
     "baseUrl": "."
   },
   "files": [
-    "node_modules/vue-router/dist/vue-router.d.ts"
+    "node_modules/vue-router/dist/vue-router.d.ts",
+    "src/types/env.d.ts",
+    "src/types/globals.d.ts",
+    "src/types/quasar.d.ts",
+    "src/types/shims-vue.d.ts"
   ],
   "include": [
     "configs/**/*.js",

@@ -76,7 +76,9 @@ module.exports = configure((ctx) => ({
   // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
   framework: {
     config: {},
-    plugins: [],
+    plugins: [
+      'Notify',
+    ],
   },
 
   // https://quasar.dev/options/animations

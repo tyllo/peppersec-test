@@ -19,7 +19,7 @@ const createRoutes = (): RouteRecordRaw[] => [
     component: () => import(
       /* webpackChunkName: "errors.errors" */
       /* webpackExports: ["default"] */
-      './AirdropCreate.vue'
+      './PageAirdropCreate.vue'
     ),
   },
   {
@@ -32,7 +32,7 @@ const createRoutes = (): RouteRecordRaw[] => [
     component: () => import(
       /* webpackChunkName: "errors.errors" */
       /* webpackExports: ["default"] */
-      './AirdropDrop.vue'
+      './PageAirdropDrop.vue'
     ),
   },
 ]

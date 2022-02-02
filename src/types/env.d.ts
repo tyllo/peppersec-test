@@ -6,6 +6,6 @@ declare namespace NodeJS {
 
     MERKLE_PROOF_AIRDROP_CONTRACT: string;
     NETWORK_NAME: string;
-    NETWORK_CHAIN_ID: string;
+    INFURA_KEY: string;
   }
 }
