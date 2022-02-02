@@ -132,24 +132,30 @@ export const approveToken = async (
   return tx
 }
 
+const dataToBytes = (
+  [address, amount]: [string, string],
+  decimals: number,
+) => {
+  const amountUnits = utils.parseUnits(amount, decimals)
+
+  const pack = utils.defaultAbiCoder.encode(
+    ['address', 'uint256'],
+    [address, amountUnits],
+  )
+
+  return pack
+}
+
 export const createMerkleTree = (
   list: IData['listTransactions'],
+  decimals: number,
 ) => {
-  const leaves = list.map((values) => {
-    const bytes = utils.solidityKeccak256(['address', 'string'], values)
-    return bytes
-  })
+  const leaves = list.map((values) => (
+    dataToBytes(values, decimals)
+  ))
 
   // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/test/utils/cryptography/MerkleProof.test.js
   const merkleTree = new MerkleTree(leaves, keccak256, { hashLeaves: true, sortPairs: true })
-
-  const bytes = utils.solidityKeccak256(['address', 'string'], list[0])
-  const leaf = keccak256(bytes) as string
-  const proof = merkleTree.getHexProof(leaf)
-
-  const isValid = merkleTree.verify(proof, leaf, merkleTree.getRoot())
-  // eslint-disable-next-line no-console
-  console.assert(isValid, 'proof is invalid ((')
 
   return merkleTree
 }
@@ -159,7 +165,7 @@ export const createNewAirdrop = async (
   tokenData: ITokenData,
   externalProvider: providers.ExternalProvider,
 ) => {
-  const tree = createMerkleTree(data.listTransactions)
+  const tree = createMerkleTree(data.listTransactions, tokenData.decimals)
   const response = await saveFile(data)
 
   const webProvider = new providers.Web3Provider(externalProvider)
@@ -225,4 +231,36 @@ export const getAirdropData = async (
       decimals,
     },
   }
+}
+
+export const claimedDrop = async (
+  id: string,
+  ethAccount: string,
+  amount: string,
+  decimals: number,
+  data: IData,
+  externalProvider: providers.ExternalProvider,
+) => {
+  const webProvider = new providers.Web3Provider(externalProvider)
+  const contract = new MerkleProofAirdrop(process.env.MERKLE_PROOF_AIRDROP_CONTRACT, webProvider)
+  const signer = webProvider.getSigner(0)
+  const methods = contract.methods.connect(signer) as MerkleProofAirdrop['methods']
+
+  const merkleTree = createMerkleTree(data.listTransactions, decimals)
+  const leaf = keccak256(dataToBytes([ethAccount, amount], decimals)) as string
+  const proof = merkleTree.getHexProof(leaf)
+
+  const isValid = merkleTree.verify(proof, leaf, merkleTree.getRoot())
+  // eslint-disable-next-line no-console
+  console.assert(isValid, 'proof is invalid ((')
+
+  const args = [
+    proof,
+    ethAccount,
+    utils.parseUnits(amount, decimals).toString(),
+    id,
+  ] as const
+
+  const tx = await methods.drop(...args)
+  return tx
 }

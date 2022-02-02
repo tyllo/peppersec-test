@@ -54,10 +54,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useWallet } from 'src/composable/store'
-import {
-  ROUTE_AIRDROP_CREATE,
-  ROUTE_AIRDROP_DROP,
-} from 'src/helpers/enums/routes'
+import { ROUTE_AIRDROP_CREATE, ROUTE_AIRDROP_DROP } from 'src/helpers/enums/routes'
 import { IData, getAirdropData } from './utils'
 
 import AirdropViewAddressTable from './components/AirdropViewAddressTable.vue'
@@ -81,17 +78,16 @@ export default defineComponent({
   setup: (props) => {
     const isLoading = ref(true)
     const errorMessage = ref('')
-
-    const {
-      webProvider,
-    } = useWallet().state
+    const airdrops = ref()
 
     const data = ref<IData>({
       tokenAddress: '',
       listTransactions: [],
     })
 
-    const airdrops = ref()
+    const {
+      webProvider,
+    } = useWallet().state
 
     void (async () => {
       if (!webProvider.value) return
@@ -130,7 +126,6 @@ export default defineComponent({
 
   &__table {
     max-width: 1024px;
-    width: 1024px;
   }
 }
 </style>

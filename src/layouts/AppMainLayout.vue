@@ -6,7 +6,11 @@
     <q-header>
       <q-toolbar>
         <q-toolbar-title>
-          Airdrop
+          <q-btn
+            to="/"
+            flat
+            label="Airdrop"
+          />
         </q-toolbar-title>
 
         <q-btn
@@ -80,9 +84,12 @@ export default defineComponent({
       try {
         await connectToMetamask()
       } catch (error) {
+        // @ts-ignore TODO
+        const { message } = (error?.error || error) as Error
+
         $q.notify({
           color: 'negative',
-          message: (error as Error).message,
+          message,
           position: 'top',
           timeout: 10_000,
         })
@@ -97,9 +104,12 @@ export default defineComponent({
       try {
         await switchEthereumChain()
       } catch (error) {
+        // @ts-ignore TODO
+        const { message } = (error?.error || error) as Error
+
         $q.notify({
           color: 'negative',
-          message: (error as Error).message,
+          message,
           position: 'top',
           timeout: 10_000,
         })

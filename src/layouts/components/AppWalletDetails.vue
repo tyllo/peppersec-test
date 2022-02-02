@@ -12,6 +12,14 @@
       <b>Balance:</b>
       <br>{{ balance }} ETH
     </div>
+
+    <q-circular-progress
+      v-else
+      indeterminate
+      size="16px"
+      color="white"
+      class="q-ma-md"
+    />
   </div>
 </template>
 
@@ -27,7 +35,6 @@ export default defineComponent({
     },
     balance: {
       type: String,
-      required: true,
     },
   },
 })

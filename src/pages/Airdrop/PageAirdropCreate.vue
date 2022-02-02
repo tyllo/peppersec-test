@@ -83,11 +83,13 @@ export default defineComponent({
           data,
         )
       } catch (error) {
+        // @ts-ignore TODO
+        const { message } = (error?.error || error) as Error
         tokenData.value = void 0
 
         $q.notify({
           color: 'negative',
-          message: (error as Error).message,
+          message,
           position: 'top',
           timeout: 10_000,
         })
@@ -119,9 +121,12 @@ export default defineComponent({
 
         await onGetTokenData()
       } catch (error) {
+        // @ts-ignore TODO
+        const { message } = (error?.error || error) as Error
+
         $q.notify({
           color: 'negative',
-          message: (error as Error).message,
+          message,
           position: 'top',
           timeout: 10_000,
         })
@@ -158,9 +163,12 @@ export default defineComponent({
           params: { id },
         })
       } catch (error) {
+        // @ts-ignore TODO
+        const { message } = (error?.error || error) as Error
+
         $q.notify({
           color: 'negative',
-          message: (error as Error).message,
+          message,
           position: 'top',
         })
       }
@@ -172,9 +180,12 @@ export default defineComponent({
       try {
         await connectToMetamask()
       } catch (error) {
+        // @ts-ignore TODO
+        const { message } = (error?.error || error) as Error
+
         $q.notify({
           color: 'negative',
-          message: (error as Error).message,
+          message,
           position: 'top',
           timeout: 10_000,
         })
@@ -216,8 +227,8 @@ export default defineComponent({
   justify-content: center;
 
   &__form {
-    max-width: 728px;
-    width: 728px;
+    max-width: 1024px;
+    width: 1024px;
   }
 }
 </style>
