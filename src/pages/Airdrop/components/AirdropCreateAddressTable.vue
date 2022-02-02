@@ -55,7 +55,6 @@
         :loading="loading"
         color="primary"
         label="Подтвердить"
-        :disabled="disabled"
         unelevated
         class="q-mx-xs"
         @click="$emit('approve', approveAmount)"

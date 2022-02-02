@@ -121,12 +121,13 @@ export const approveToken = async (
   const signer = webProvider.getSigner(0)
   const methods = contract.methods.connect(signer) as ERC20Token['methods']
 
-  const decimals = await contract.methods.decimals()
-  const amountUnits = utils.parseUnits(amount, decimals)
+  const amountUnits = amount
+    ? utils.parseUnits(amount, await contract.methods.decimals())
+    : constants.MaxUint256
 
   const tx = await methods.approve(
     process.env.MERKLE_PROOF_AIRDROP_CONTRACT,
-    amountUnits || constants.MaxUint256.toString(),
+    amountUnits,
   )
 
   return tx
