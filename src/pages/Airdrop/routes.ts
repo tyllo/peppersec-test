@@ -20,7 +20,6 @@ const createRoutes = (): RouteRecordRaw[] => [
     },
     component: () => import(
       /* webpackChunkName: "airdrop.create" */
-      /* webpackExports: ["default"] */
       './PageAirdropCreate.vue'
     ),
   },
@@ -33,7 +32,6 @@ const createRoutes = (): RouteRecordRaw[] => [
     },
     component: () => import(
       /* webpackChunkName: "airdrop.summary" */
-      /* webpackExports: ["default"] */
       './PageAirdropSummary.vue'
     ),
   },
@@ -46,7 +44,6 @@ const createRoutes = (): RouteRecordRaw[] => [
     },
     component: () => import(
       /* webpackChunkName: "airdrop.drop" */
-      /* webpackExports: ["default"] */
       './PageAirdropDrop.vue'
     ),
   },

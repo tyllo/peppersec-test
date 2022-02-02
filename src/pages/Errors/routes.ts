@@ -12,7 +12,6 @@ const createRoutes = (): RouteRecordRaw[] => [
     },
     component: () => import(
       /* webpackChunkName: "errors.errors" */
-      /* webpackExports: ["default"] */
       './ErrorNotFound404.vue'
     ),
   },
