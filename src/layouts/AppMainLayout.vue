@@ -6,7 +6,7 @@
     <q-header>
       <q-toolbar>
         <q-toolbar-title>
-          {{ $route.meta.title }}
+          Airdrop
         </q-toolbar-title>
 
         <q-btn

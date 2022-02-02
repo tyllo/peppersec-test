@@ -16,9 +16,10 @@
         v-else-if="step === 1"
         v-bind="form"
         :token-data="tokenData"
-        :loading-approve="isLoadingApprove"
-        @approve="onApprove"
+        :loading="isLoadingApprove || isLoadingCreate"
         @back="onBack"
+        @approve="onApprove"
+        @create="onCreate"
       />
     </div>
   </q-page>
@@ -26,13 +27,16 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useWallet } from 'src/composable/store'
+import { ROUTE_AIRDROP_SUMMARY } from 'src/helpers/enums/routes'
 import {
   IData,
   ITokenData,
   getTokenData,
   approveToken,
+  createNewAirdrop,
 } from './utils'
 
 import AirdropCreateForm from './components/AirdropCreateForm.vue'
@@ -47,9 +51,12 @@ export default defineComponent({
   },
   setup: () => {
     const isLoadingApprove = ref(false)
+    const isLoadingCreate = ref(false)
     const form = ref<IData>()
     const tokenData = ref<ITokenData>()
     const step = ref(0)
+
+    const $router = useRouter()
     const $q = useQuasar()
 
     const { state } = useWallet()
@@ -105,8 +112,8 @@ export default defineComponent({
         await tx.wait()
 
         $q.notify({
-          color: 'negative',
-          message: `Transaction ${tx.hash} is ok`,
+          color: 'positive',
+          message: `Approved! Transaction ${tx.hash}`,
           position: 'top',
         })
 
@@ -123,6 +130,44 @@ export default defineComponent({
       isLoadingApprove.value = false
     }
 
+    const onCreate = async () => {
+      const externalProvider = state.externalProvider.value
+      const data = form.value
+      const tokenDataV = tokenData.value
+      if (!data || !externalProvider || !tokenDataV) return
+
+      isLoadingCreate.value = true
+
+      try {
+        const { id, tx } = await createNewAirdrop(
+          data,
+          tokenDataV,
+          externalProvider,
+        )
+
+        await tx.wait()
+
+        $q.notify({
+          color: 'positive',
+          message: `createNewAirdrop! Transaction ${tx.hash}`,
+          position: 'top',
+        })
+
+        $router.push({
+          name: ROUTE_AIRDROP_SUMMARY,
+          params: { id },
+        })
+      } catch (error) {
+        $q.notify({
+          color: 'negative',
+          message: (error as Error).message,
+          position: 'top',
+        })
+      }
+
+      isLoadingCreate.value = false
+    }
+
     const onConnect = async () => {
       try {
         await connectToMetamask()
@@ -136,19 +181,20 @@ export default defineComponent({
       }
     }
 
-    const onNext = (data: IData) => {
-      step.value = 1
+    const onNext = (data = form.value) => {
+      step.value += 1
       form.value = data
       onGetTokenData()
     }
 
     const onBack = () => {
-      step.value = 0
+      step.value -= 1
     }
 
     return {
       isConnected,
       isLoadingApprove,
+      isLoadingCreate,
 
       step,
       form,
@@ -156,6 +202,7 @@ export default defineComponent({
 
       onConnect,
       onApprove,
+      onCreate,
       onNext,
       onBack,
     }

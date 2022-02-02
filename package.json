@@ -6,7 +6,7 @@
   "author": "Andrey Pastukhov <gmtyllo@gmail.com>",
   "private": true,
   "scripts": {
-    "postinstall": "generate-types",
+    "postinstall": "npm run generate-types",
     "generate-types": "node ./configs/scripts/generate-types.js",
     "dev": "quasar dev",
     "build": "quasar build",
@@ -20,6 +20,9 @@
     "@quasar/extras": "^1.0.0",
     "core-js": "^3.6.5",
     "ethers": "^5.5.4",
+    "keccak256": "^1.0.6",
+    "lodash": "^4.17.21",
+    "merkletreejs": "^0.2.27",
     "quasar": "^2.0.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
@@ -27,6 +30,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",
     "@quasar/app": "^3.0.0",
+    "@types/lodash": "^4.14.178",
     "@types/node": "^12.20.21",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",

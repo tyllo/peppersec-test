@@ -52,7 +52,7 @@
 
       <q-btn
         v-if="tokenData?.isNeedApprove"
-        :loading="loadingApprove"
+        :loading="loading"
         color="primary"
         label="Подтвердить"
         :disabled="disabled"
@@ -63,12 +63,13 @@
 
       <q-btn
         v-else
+        :loading="loading"
         color="primary"
-        label="Дальше"
+        label="Создать"
         :disabled="disabled"
         unelevated
         class="q-mx-xs"
-        @clock="$emit('next')"
+        @click="$emit('create')"
       />
     </div>
   </div>
@@ -114,7 +115,7 @@ export default defineComponent({
       type: Array as PropType<IListTransactions>,
       required: true,
     },
-    loadingApprove: {
+    loading: {
       type: Boolean,
       required: true,
     },
@@ -122,6 +123,7 @@ export default defineComponent({
   emits: [
     'back',
     'approve',
+    'create',
   ],
   setup: (props) => {
     const approveAmount = ref('')
@@ -129,7 +131,7 @@ export default defineComponent({
     const disabled = computed(() => (
       !props.tokenData
       || !props.tokenData.isEnoughBalance
-      || props.loadingApprove
+      || props.loading
     ))
 
     return {

@@ -5,8 +5,14 @@ import {
   constants,
 } from 'ethers'
 import uniqBy from 'lodash/uniqBy'
+import keccak256 from 'keccak256'
+import { Buffer } from 'buffer'
+import { MerkleTree } from 'merkletreejs'
+
+import { saveFile, getFile } from 'src/api'
 import { Await } from 'src/types/utils'
 import { ERC20Token } from 'src/helpers/contracts/ERC20Token'
+import { MerkleProofAirdrop } from 'src/helpers/contracts/MerkleProofAirdrop'
 
 
 export type IListTransactions = ReturnType<typeof parseListTransactions>
@@ -16,10 +22,18 @@ export type IData = {
   listTransactions: IListTransactions;
 }
 
+// @ts-ignore TODO
+window.Buffer = Buffer
+
 export type ITokenData = Await<ReturnType<typeof getTokenData>>
 
 export const parseListTransactions = (str: string) => (
-  str.replace(/\s+/g, ' ').trim().split(' ').map((_) => _.split(',') as [string, string])
+  str
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .map((_) => _.split(',') as [string, string])
+    .sort((a, b) => +a[0] - +b[0])
 )
 
 const validateToken = (address: string) => (
@@ -38,7 +52,7 @@ const validateListUniq = (data: IListTransactions) => (
   uniqBy(data, '0').length === data.length
 )
 
-export const validateForm = (data: Omit<IData, 'total'>) => {
+export const validateForm = (data: IData) => {
   if (!validateToken(data.tokenAddress)) {
     return 'Адрес токена невалидный'
   }
@@ -86,6 +100,7 @@ export const getTokenData = async (
   return {
     name,
     symbol,
+    address: contract.methods.address,
     decimals,
     total,
     totalUnits,
@@ -103,14 +118,11 @@ export const approveToken = async (
 ) => {
   const webProvider = new providers.Web3Provider(externalProvider)
   const contract = new ERC20Token(data.tokenAddress, webProvider)
-
   const signer = webProvider.getSigner(0)
   const methods = contract.methods.connect(signer) as ERC20Token['methods']
 
-  const amountUnits = utils.parseUnits(
-    amount,
-    await contract.methods.decimals(),
-  )
+  const decimals = await contract.methods.decimals()
+  const amountUnits = utils.parseUnits(amount, decimals)
 
   const tx = await methods.approve(
     process.env.MERKLE_PROOF_AIRDROP_CONTRACT,
@@ -118,4 +130,99 @@ export const approveToken = async (
   )
 
   return tx
+}
+
+export const createMerkleTree = (
+  list: IData['listTransactions'],
+) => {
+  const leaves = list.map((values) => {
+    const bytes = utils.solidityKeccak256(['address', 'string'], values)
+    return bytes
+  })
+
+  // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/test/utils/cryptography/MerkleProof.test.js
+  const merkleTree = new MerkleTree(leaves, keccak256, { hashLeaves: true, sortPairs: true })
+
+  const bytes = utils.solidityKeccak256(['address', 'string'], list[0])
+  const leaf = keccak256(bytes) as string
+  const proof = merkleTree.getHexProof(leaf)
+
+  const isValid = merkleTree.verify(proof, leaf, merkleTree.getRoot())
+  // eslint-disable-next-line no-console
+  console.assert(isValid, 'proof is invalid ((')
+
+  return merkleTree
+}
+
+export const createNewAirdrop = async (
+  data: IData,
+  tokenData: ITokenData,
+  externalProvider: providers.ExternalProvider,
+) => {
+  const tree = createMerkleTree(data.listTransactions)
+  const response = await saveFile(data)
+
+  const webProvider = new providers.Web3Provider(externalProvider)
+  const contract = new MerkleProofAirdrop(process.env.MERKLE_PROOF_AIRDROP_CONTRACT, webProvider)
+  const signer = webProvider.getSigner(0)
+  const methods = contract.methods.connect(signer) as MerkleProofAirdrop['methods']
+
+  const args = [
+    tree.getHexRoot(),
+    tokenData.address,
+    tokenData.totalUnits,
+    response.id,
+  ] as const
+
+  const tx = await methods.createNewAirdrop(...args)
+
+  return {
+    ...response,
+    tx,
+  }
+}
+
+export const getAirdropData = async (
+  id: string,
+  provider: providers.Provider,
+) => {
+  const contract = new MerkleProofAirdrop(process.env.MERKLE_PROOF_AIRDROP_CONTRACT, provider)
+  const parameter0 = utils.keccak256(utils.toUtf8Bytes(id))
+
+  const [
+    data,
+    airdrops,
+  ] = await Promise.all([
+    getFile<IData>(id),
+    contract.methods.airdrops(parameter0),
+  ])
+
+  const tokenContract = new ERC20Token(
+    airdrops.tokenAddress,
+    provider,
+  )
+
+  const [
+    name,
+    symbol,
+    decimals,
+
+  ] = await Promise.all([
+    tokenContract.methods.name(),
+    tokenContract.methods.symbol(),
+    tokenContract.methods.decimals(),
+  ])
+
+  return {
+    data,
+    airdrops: {
+      claimed: utils.formatUnits(airdrops.claimed, decimals),
+      owner: airdrops.owner,
+      tokenAddress: airdrops.tokenAddress,
+      total: utils.formatUnits(airdrops.total, decimals),
+      name,
+      symbol,
+      decimals,
+    },
+  }
 }

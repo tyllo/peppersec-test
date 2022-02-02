@@ -11,12 +11,31 @@ import {
 import { formatHumanTokenAmount } from 'src/helpers/formatters'
 
 
+const getDefaultWebProvider = (
+  // @ts-ignore TODO
+  chainIdInner?: number,
+) => {
+  const networkName = (
+    NetworkNames[chainIdInner as number]
+    || process.env.NETWORK_NAME
+  )
+
+  const url = chainIdInner === NetworkNames.mainnet
+    ? `wss://infura.io/ws/v3/${process.env.INFURA_KEY}`
+    : `wss://${networkName}.infura.io/ws/v3/${process.env.INFURA_KEY}`
+
+  const provider = new providers.WebSocketProvider(url)
+  return provider
+}
+
 const isLoadingConnect = ref(false)
 const chainId = ref<number>()
 const ethAccount = ref<string>()
 const balanceUnits = ref<string>()
 const externalProvider = ref<MetaMaskInpageProvider & providers.ExternalProvider>()
-const webProvider = ref<providers.WebSocketProvider | providers.Web3Provider>()
+const webProvider = ref<providers.WebSocketProvider | providers.Web3Provider>(
+  markRaw(getDefaultWebProvider()),
+)
 
 const ethAccountShort = computed(() => (
   ethAccount.value
@@ -53,7 +72,6 @@ const disconnect = () => {
   chainId.value = void 0
   ethAccount.value = void 0
   balanceUnits.value = void 0
-  webProvider.value = void 0
 }
 
 const subscribeOnWalletEvents = () => {
@@ -128,11 +146,7 @@ const connectToMetamask = async () => {
     // webProvider.value.close()
 
     if (chainId.value && NetworkNames[chainId.value]) {
-      const url = chainId.value === NetworkNames.mainnet
-        ? `wss://infura.io/ws/v3/${process.env.INFURA_KEY}`
-        : `wss://${NetworkNames[chainId.value]}.infura.io/ws/v3/${process.env.INFURA_KEY}`
-
-      const provider = new providers.WebSocketProvider(url)
+      const provider = getDefaultWebProvider(chainId.value)
       webProvider.value = markRaw(provider)
     } else {
       webProvider.value = new providers.Web3Provider(

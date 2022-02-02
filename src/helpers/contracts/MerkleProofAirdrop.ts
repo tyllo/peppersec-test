@@ -4,13 +4,13 @@ import { GMerkleProofAirdrop } from 'src/types/generated/GMerkleProofAirdrop'
 
 
 export class MerkleProofAirdrop {
-  private contract: Contract & GMerkleProofAirdrop;
+  public methods: Contract & GMerkleProofAirdrop;
 
   constructor(
     address: string,
     provider: providers.Provider,
   ) {
     const contract = new Contract(address, ABI, provider)
-    this.contract = contract as MerkleProofAirdrop['contract']
+    this.methods = contract as this['methods']
   }
 }

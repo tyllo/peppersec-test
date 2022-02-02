@@ -1,5 +1,6 @@
 import {
   ROUTE_AIRDROP_CREATE,
+  ROUTE_AIRDROP_SUMMARY,
   ROUTE_AIRDROP_DROP,
 
   ROUTE_ERROR_404,
@@ -10,6 +11,12 @@ export const PAGE_AIRDROP_CREATE = {
   name: ROUTE_AIRDROP_CREATE,
   to: { name: ROUTE_AIRDROP_CREATE },
   title: 'Создать Airdrop',
+}
+
+export const PAGE_AIRDROP_SUMMARY = {
+  name: ROUTE_AIRDROP_SUMMARY,
+  to: { name: ROUTE_AIRDROP_SUMMARY },
+  title: 'Airdrop',
 }
 
 export const PAGE_AIRDROP_DROP = {

@@ -1,10 +1,12 @@
 import { RouteRecordRaw } from 'vue-router'
 import {
   ROUTE_AIRDROP_CREATE,
+  ROUTE_AIRDROP_SUMMARY,
   ROUTE_AIRDROP_DROP,
 } from 'src/helpers/enums/routes'
 import {
   PAGE_AIRDROP_CREATE,
+  PAGE_AIRDROP_SUMMARY,
   PAGE_AIRDROP_DROP,
 } from 'src/helpers/enums/pages'
 
@@ -17,20 +19,33 @@ const createRoutes = (): RouteRecordRaw[] => [
       title: PAGE_AIRDROP_CREATE.title,
     },
     component: () => import(
-      /* webpackChunkName: "errors.errors" */
+      /* webpackChunkName: "airdrop.create" */
       /* webpackExports: ["default"] */
       './PageAirdropCreate.vue'
     ),
   },
   {
-    path: '/drop/:hash_file',
+    path: '/view/:id',
+    name: ROUTE_AIRDROP_SUMMARY,
+    props: true,
+    meta: {
+      title: PAGE_AIRDROP_SUMMARY.title,
+    },
+    component: () => import(
+      /* webpackChunkName: "airdrop.summary" */
+      /* webpackExports: ["default"] */
+      './PageAirdropSummary.vue'
+    ),
+  },
+  {
+    path: '/drop/:id',
     name: ROUTE_AIRDROP_DROP,
     props: true,
     meta: {
       title: PAGE_AIRDROP_DROP.title,
     },
     component: () => import(
-      /* webpackChunkName: "errors.errors" */
+      /* webpackChunkName: "airdrop.drop" */
       /* webpackExports: ["default"] */
       './PageAirdropDrop.vue'
     ),
